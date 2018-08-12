@@ -1,10 +1,12 @@
 # Brogue
 v1.7.4
 
-This Repository is maintained by SvifyLabs. Feel free to create issues for bugs and feature requests.
+This Repository is maintained by jasonimercer. Feel free to create issues for bugs and feature requests.
 
 Many thanks to Brian Walker for providing the source code for this game !
 
+## Motivation
+Exploring a modern C++ port of the original Brogue v1.7.4
 
 ## About
 >Brogue is a Roguelike game for Mac OS X, Windows and Linux by Brian Walker.
