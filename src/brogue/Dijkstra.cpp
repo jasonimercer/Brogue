@@ -3,7 +3,7 @@
  *  Brogue
  *
  *  Copyright 2012. All rights reserved.
- *  
+ *
  *  This file is part of Brogue.
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -23,279 +23,342 @@
 // This code was created by Joshua Day, to replace my clunkier and slower Dijkstra scanning algorithm in Movement.c.
 // Thanks very much, Joshua.
 
-#include "Rogue.h"
 #include "IncludeGlobals.h"
+#include "Rogue.h"
 
-struct pdsLink {
-	short distance;
-	short cost;
-	pdsLink *left, *right;
+struct pdsLink
+{
+  int distance;
+  int cost;
+  pdsLink *left, *right;
 };
 
-struct pdsMap {
-	boolean eightWays;
+struct pdsMap
+{
+  bool eightWays;
 
-	pdsLink front;
-	pdsLink links[DCOLS * DROWS];
+  pdsLink front;
+  pdsLink links[DCOLS * DROWS];
 };
 
-void pdsUpdate(pdsMap *map) {
-	short dir, dirs;
-	pdsLink *left = NULL, *right = NULL, *link = NULL;
-	
-	dirs = map->eightWays ? 8 : 4;
+void pdsUpdate(pdsMap* map)
+{
+  int dir, dirs;
+  pdsLink *left = nullptr, *right = nullptr, *link = nullptr;
 
-	pdsLink *head = map->front.right;
-	map->front.right = NULL;
+  dirs = map->eightWays ? 8 : 4;
 
-	while (head != NULL) {
-		for (dir = 0; dir < dirs; dir++) {
-			link = head + (nbDirs[dir][0] + DCOLS * nbDirs[dir][1]);
-			if (link < map->links || link >= map->links + DCOLS * DROWS) continue;
+  pdsLink* head = map->front.right;
+  map->front.right = nullptr;
 
-			// verify passability
-			if (link->cost < 0) continue;
-			if (dir >= 4) {
-				pdsLink *way1, *way2;
-				way1 = head + nbDirs[dir][0];
-				way2 = head + DCOLS * nbDirs[dir][1];
-				if (way1->cost == PDS_OBSTRUCTION || way2->cost == PDS_OBSTRUCTION) continue;
-			}
+  while (head != nullptr)
+  {
+    for (dir = 0; dir < dirs; dir++)
+    {
+      link = head + (nbDirs[dir][0] + DCOLS * nbDirs[dir][1]);
+      if (link < map->links || link >= map->links + DCOLS * DROWS)
+        continue;
 
-			if (head->distance + link->cost < link->distance) {
-				link->distance = head->distance + link->cost;
+      // verify passability
+      if (link->cost < 0)
+        continue;
+      if (dir >= 4)
+      {
+        pdsLink *way1, *way2;
+        way1 = head + nbDirs[dir][0];
+        way2 = head + DCOLS * nbDirs[dir][1];
+        if (way1->cost == PDS_OBSTRUCTION || way2->cost == PDS_OBSTRUCTION)
+          continue;
+      }
 
-				// reinsert the touched cell; it'll be close to the beginning of the list now, so
-				// this will be very fast.  start by removing it.
+      if (head->distance + link->cost < link->distance)
+      {
+        link->distance = head->distance + link->cost;
 
-				if (link->right != NULL) link->right->left = link->left;
-				if (link->left != NULL) link->left->right = link->right;
-			
-				left = head;
-				right = head->right;
-				while (right != NULL && right->distance < link->distance) {
-					left = right;
-					right = right->right;
-				}
-				if (left != NULL) left->right = link;
-				link->right = right;
-				link->left = left;
-				if (right != NULL) right->left = link;
-			}
-		}
+        // reinsert the touched cell; it'll be close to the beginning of the list now, so
+        // this will be very fast.  start by removing it.
 
-		right = head->right;
+        if (link->right != nullptr)
+          link->right->left = link->left;
+        if (link->left != nullptr)
+          link->left->right = link->right;
 
-		head->left = NULL;
-		head->right = NULL;
+        left = head;
+        right = head->right;
+        while (right != nullptr && right->distance < link->distance)
+        {
+          left = right;
+          right = right->right;
+        }
+        if (left != nullptr)
+          left->right = link;
+        link->right = right;
+        link->left = left;
+        if (right != nullptr)
+          right->left = link;
+      }
+    }
 
-		head = right;
-	}
+    right = head->right;
+
+    head->left = nullptr;
+    head->right = nullptr;
+
+    head = right;
+  }
 }
 
-void pdsClear(pdsMap *map, short maxDistance, boolean eightWays) {
-	short i;
-	
-	map->eightWays = eightWays;
+void pdsClear(pdsMap* map, int maxDistance, bool eightWays)
+{
+  int i;
 
-	map->front.right = NULL;
+  map->eightWays = eightWays;
 
-	for (i=0; i < DCOLS*DROWS; i++) {
-		map->links[i].distance = maxDistance;
-		map->links[i].left = map->links[i].right = NULL;
-	}
+  map->front.right = nullptr;
+
+  for (i = 0; i < DCOLS * DROWS; i++)
+  {
+    map->links[i].distance = maxDistance;
+    map->links[i].left = map->links[i].right = nullptr;
+  }
 }
 
-short pdsGetDistance(pdsMap *map, short x, short y) {
-	pdsUpdate(map);
-	return PDS_CELL(map, x, y)->distance;
+int pdsGetDistance(pdsMap* map, int x, int y)
+{
+  pdsUpdate(map);
+  return PDS_CELL(map, x, y)->distance;
 }
 
-void pdsSetDistance(pdsMap *map, short x, short y, short distance) {
-	pdsLink *left, *right, *link;
+void pdsSetDistance(pdsMap* map, int x, int y, int distance)
+{
+  pdsLink *left, *right, *link;
 
-	if (x > 0 && y > 0 && x < DCOLS - 1 && y < DROWS - 1) {
-		link = PDS_CELL(map, x, y);
-		if (link->distance > distance) {
-			link->distance = distance;
+  if (x > 0 && y > 0 && x < DCOLS - 1 && y < DROWS - 1)
+  {
+    link = PDS_CELL(map, x, y);
+    if (link->distance > distance)
+    {
+      link->distance = distance;
 
-			if (link->right != NULL) link->right->left = link->left;
-			if (link->left != NULL) link->left->right = link->right;
+      if (link->right != nullptr)
+        link->right->left = link->left;
+      if (link->left != nullptr)
+        link->left->right = link->right;
 
-			left = &map->front;
-			right = map->front.right;
-			
-			while (right != NULL && right->distance < link->distance) {
-				left = right;
-				right = right->right;
-			}
+      left = &map->front;
+      right = map->front.right;
 
-			link->right = right;
-			link->left = left;
-			left->right = link;
-			if (right != NULL) right->left = link;
-		}
-	}
+      while (right != nullptr && right->distance < link->distance)
+      {
+        left = right;
+        right = right->right;
+      }
+
+      link->right = right;
+      link->left = left;
+      left->right = link;
+      if (right != nullptr)
+        right->left = link;
+    }
+  }
 }
 
-void pdsSetCosts(pdsMap *map, short **costMap) {
-	short i, j;
+void pdsSetCosts(pdsMap* map, int** costMap)
+{
+  int i, j;
 
-	for (i=0; i<DCOLS; i++) {
-		for (j=0; j<DROWS; j++) {
-			if (i != 0 && j != 0 && i < DCOLS - 1 && j < DROWS - 1) {
-				PDS_CELL(map, i, j)->cost = costMap[i][j];
-			} else {
-				PDS_CELL(map, i, j)->cost = PDS_FORBIDDEN;
-			}
-		}
-	}
+  for (i = 0; i < DCOLS; i++)
+  {
+    for (j = 0; j < DROWS; j++)
+    {
+      if (i != 0 && j != 0 && i < DCOLS - 1 && j < DROWS - 1)
+      {
+        PDS_CELL(map, i, j)->cost = costMap[i][j];
+      }
+      else
+      {
+        PDS_CELL(map, i, j)->cost = PDS_FORBIDDEN;
+      }
+    }
+  }
 }
 
-void pdsBatchInput(pdsMap *map, short **distanceMap, short **costMap, short maxDistance, boolean eightWays) {
-	short i, j;
-	pdsLink *left, *right;
+void pdsBatchInput(pdsMap* map, int** distanceMap, int** costMap, int maxDistance, bool eightWays)
+{
+  int i, j;
+  pdsLink *left, *right;
 
-	map->eightWays = eightWays;
+  map->eightWays = eightWays;
 
-	left = NULL;
-	right = NULL;
+  left = nullptr;
+  right = nullptr;
 
-	map->front.right = NULL;
-	for (i=0; i<DCOLS; i++) {
-		for (j=0; j<DROWS; j++) {
-			pdsLink *link = PDS_CELL(map, i, j);
+  map->front.right = nullptr;
+  for (i = 0; i < DCOLS; i++)
+  {
+    for (j = 0; j < DROWS; j++)
+    {
+      pdsLink* link = PDS_CELL(map, i, j);
 
-			if (distanceMap != NULL) {
-				link->distance = distanceMap[i][j];
-			} else {
-				if (costMap != NULL) {
-					// totally hackish; refactor
-					link->distance = maxDistance;
-				}
-			}
+      if (distanceMap != nullptr)
+      {
+        link->distance = distanceMap[i][j];
+      }
+      else
+      {
+        if (costMap != nullptr)
+        {
+          // totally hackish; refactor
+          link->distance = maxDistance;
+        }
+      }
 
-			int cost;
+      int cost;
 
-			if (i == 0 || j == 0 || i == DCOLS - 1 || j == DROWS - 1) {
-				cost = PDS_OBSTRUCTION;
-			} else if (costMap == NULL) {
-				if (cellHasTerrainFlag(i, j, T_OBSTRUCTS_PASSABILITY) && cellHasTerrainFlag(i, j, T_OBSTRUCTS_DIAGONAL_MOVEMENT)) cost = PDS_OBSTRUCTION;
-				else cost = PDS_FORBIDDEN;
-			} else {
-				cost = costMap[i][j];
-			}
+      if (i == 0 || j == 0 || i == DCOLS - 1 || j == DROWS - 1)
+      {
+        cost = PDS_OBSTRUCTION;
+      }
+      else if (costMap == nullptr)
+      {
+        if (cellHasTerrainFlag(i, j, T_OBSTRUCTS_PASSABILITY) &&
+            cellHasTerrainFlag(i, j, T_OBSTRUCTS_DIAGONAL_MOVEMENT))
+          cost = PDS_OBSTRUCTION;
+        else
+          cost = PDS_FORBIDDEN;
+      }
+      else
+      {
+        cost = costMap[i][j];
+      }
 
-			link->cost = cost;
+      link->cost = cost;
 
-			if (cost > 0) {
-				if (link->distance < maxDistance) {
-					if (right == NULL || right->distance > link->distance) {
-						// left and right are used to traverse the list; if many cells have similar values,
-						// some time can be saved by not clearing them with each insertion.  this time,
-						// sadly, we have to start from the front.
+      if (cost > 0)
+      {
+        if (link->distance < maxDistance)
+        {
+          if (right == nullptr || right->distance > link->distance)
+          {
+            // left and right are used to traverse the list; if many cells have similar values,
+            // some time can be saved by not clearing them with each insertion.  this time,
+            // sadly, we have to start from the front.
 
-						left = &map->front;
-						right = map->front.right;
-					}
+            left = &map->front;
+            right = map->front.right;
+          }
 
-					while (right != NULL && right->distance < link->distance) {
-						left = right;
-						right = right->right;
-					}
+          while (right != nullptr && right->distance < link->distance)
+          {
+            left = right;
+            right = right->right;
+          }
 
-					link->right = right;
-					link->left = left;
-					left->right = link;
-					if (right != NULL) right->left = link;
+          link->right = right;
+          link->left = left;
+          left->right = link;
+          if (right != nullptr)
+            right->left = link;
 
-					left = link;
-				} else {
-					link->right = NULL;
-					link->left = NULL;
-				}
-			} else {
-				link->right = NULL;
-				link->left = NULL;
-			}
-		}
-	}
+          left = link;
+        }
+        else
+        {
+          link->right = nullptr;
+          link->left = nullptr;
+        }
+      }
+      else
+      {
+        link->right = nullptr;
+        link->left = nullptr;
+      }
+    }
+  }
 }
 
-void pdsBatchOutput(pdsMap *map, short **distanceMap) {
-	short i, j;
+void pdsBatchOutput(pdsMap* map, int** distanceMap)
+{
+  int i, j;
 
-	pdsUpdate(map);
-	// transfer results to the distanceMap
-	for (i=0; i<DCOLS; i++) {
-		for (j=0; j<DROWS; j++) {
-			distanceMap[i][j] = PDS_CELL(map, i, j)->distance;
-		}
-	}
+  pdsUpdate(map);
+  // transfer results to the distanceMap
+  for (i = 0; i < DCOLS; i++)
+  {
+    for (j = 0; j < DROWS; j++)
+    {
+      distanceMap[i][j] = PDS_CELL(map, i, j)->distance;
+    }
+  }
 }
 
-void pdsInvalidate(pdsMap *map, short maxDistance) {
-	pdsBatchInput(map, NULL, NULL, maxDistance, map->eightWays);
+void pdsInvalidate(pdsMap* map, int maxDistance)
+{
+  pdsBatchInput(map, nullptr, nullptr, maxDistance, map->eightWays);
 }
 
-void dijkstraScan(short **distanceMap, short **costMap, boolean useDiagonals) {
-	static pdsMap map;
+void dijkstraScan(int** distanceMap, int** costMap, bool useDiagonals)
+{
+  static pdsMap map;
 
-	pdsBatchInput(&map, distanceMap, costMap, 30000, useDiagonals);
-	pdsBatchOutput(&map, distanceMap);
+  pdsBatchInput(&map, distanceMap, costMap, 30000, useDiagonals);
+  pdsBatchOutput(&map, distanceMap);
 }
 
-void calculateDistances(short **distanceMap,
-						short destinationX, short destinationY,
-						unsigned long blockingTerrainFlags,
-						creature *traveler,
-						boolean canUseSecretDoors,
-						boolean eightWays) {
-	creature *monst;
-    static pdsMap map;
+void calculateDistances(int** distanceMap, int destinationX, int destinationY, unsigned long blockingTerrainFlags,
+                        Creature* traveler, bool canUseSecretDoors, bool eightWays)
+{
+  Creature* monst;
+  static pdsMap map;
 
-	short i, j;
-	
-	for (i=0; i<DCOLS; i++) {
-		for (j=0; j<DROWS; j++) {
-			char cost;
-            monst = monsterAtLoc(i, j);
-            if (monst
-                && (monst->info.flags & (MONST_IMMUNE_TO_WEAPONS | MONST_INVULNERABLE))
-                && (monst->info.flags & (MONST_IMMOBILE | MONST_GETS_TURN_ON_ACTIVATION))) {
-                
-                // Always avoid damage-immune stationary monsters.
-                cost = PDS_FORBIDDEN;
-            } else if (canUseSecretDoors
-                && cellHasTMFlag(i, j, TM_IS_SECRET)
-                && cellHasTerrainFlag(i, j, T_OBSTRUCTS_PASSABILITY)
-                && !(discoveredTerrainFlagsAtLoc(i, j) & T_OBSTRUCTS_PASSABILITY)) {
-                
-				cost = 1;
-			} else if (cellHasTerrainFlag(i, j, T_OBSTRUCTS_PASSABILITY)
-					   || (traveler && traveler == &player && !(pmap[i][j].flags & (DISCOVERED | MAGIC_MAPPED)))) {
-                
-				cost = cellHasTerrainFlag(i, j, T_OBSTRUCTS_DIAGONAL_MOVEMENT) ? PDS_OBSTRUCTION : PDS_FORBIDDEN;
-			} else if ((traveler && monsterAvoids(traveler, i, j)) || cellHasTerrainFlag(i, j, blockingTerrainFlags)) {
-				cost = PDS_FORBIDDEN;
-			} else {
-				cost = 1;
-			}
-			
-			PDS_CELL(&map, i, j)->cost = cost;
-		}
-	}
-	
-	pdsClear(&map, 30000, eightWays);
-	pdsSetDistance(&map, destinationX, destinationY, 0);
-	pdsBatchOutput(&map, distanceMap);
+  int i, j;
+
+  for (i = 0; i < DCOLS; i++)
+  {
+    for (j = 0; j < DROWS; j++)
+    {
+      char cost;
+      monst = monsterAtLoc(i, j);
+      if (monst && (monst->info.flags & (MONST_IMMUNE_TO_WEAPONS | MONST_INVULNERABLE)) &&
+          (monst->info.flags & (MONST_IMMOBILE | MONST_GETS_TURN_ON_ACTIVATION)))
+      {
+        // Always avoid damage-immune stationary monsters.
+        cost = PDS_FORBIDDEN;
+      }
+      else if (canUseSecretDoors && cellHasTMFlag(i, j, TM_IS_SECRET) &&
+               cellHasTerrainFlag(i, j, T_OBSTRUCTS_PASSABILITY) &&
+               !(discoveredTerrainFlagsAtLoc(i, j) & T_OBSTRUCTS_PASSABILITY))
+      {
+        cost = 1;
+      }
+      else if (cellHasTerrainFlag(i, j, T_OBSTRUCTS_PASSABILITY) ||
+               (traveler && traveler == &player && !(pmap[i][j].flags & (DISCOVERED | MAGIC_MAPPED))))
+      {
+        cost = cellHasTerrainFlag(i, j, T_OBSTRUCTS_DIAGONAL_MOVEMENT) ? PDS_OBSTRUCTION : PDS_FORBIDDEN;
+      }
+      else if ((traveler && monsterAvoids(traveler, i, j)) || cellHasTerrainFlag(i, j, blockingTerrainFlags))
+      {
+        cost = PDS_FORBIDDEN;
+      }
+      else
+      {
+        cost = 1;
+      }
+
+      PDS_CELL(&map, i, j)->cost = cost;
+    }
+  }
+
+  pdsClear(&map, 30000, eightWays);
+  pdsSetDistance(&map, destinationX, destinationY, 0);
+  pdsBatchOutput(&map, distanceMap);
 }
 
-short pathingDistance(short x1, short y1, short x2, short y2, unsigned long blockingTerrainFlags) {
-	short retval, **distanceMap = allocGrid();
-	calculateDistances(distanceMap, x2, y2, blockingTerrainFlags, NULL, true, true);
-	retval = distanceMap[x1][y1];
-	freeGrid(distanceMap);
-	return retval;
+int pathingDistance(int x1, int y1, int x2, int y2, unsigned long blockingTerrainFlags)
+{
+  int retval, **distanceMap = allocGrid();
+  calculateDistances(distanceMap, x2, y2, blockingTerrainFlags, nullptr, true, true);
+  retval = distanceMap[x1][y1];
+  freeGrid(distanceMap);
+  return retval;
 }
-

@@ -4,7 +4,7 @@
  *
  *  Created by Brian Walker on 2/8/09.
  *  Copyright 2012. All rights reserved.
- *  
+ *
  *  This file is part of Brogue.
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -21,34 +21,36 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-extern tcell tmap[DCOLS][DROWS];						// grids with info about the map
-extern pcell pmap[DCOLS][DROWS];						// grids with info about the map
-extern short **scentMap;
-extern cellDisplayBuffer displayBuffer[COLS][ROWS];
-extern short terrainRandomValues[DCOLS][DROWS][8];
-extern short **safetyMap;										// used to help monsters flee
-extern short **allySafetyMap;
-extern short **chokeMap;
+#include "Rogue.h"
 
-extern const short nbDirs[8][2];
-extern const short cDirs[8][2];
-extern levelData *levels;
-extern creature player;
-extern playerCharacter rogue;
-extern creature *monsters;
-extern creature *dormantMonsters;
-extern creature *graveyard;
-extern creature *purgatory;
-extern item *floorItems;
-extern item *packItems;
-extern item *monsterItemsHopper;
-extern short numberOfWaypoints;
+extern TCell tmap[DCOLS][DROWS];  // grids with info about the map
+extern pcell pmap[DCOLS][DROWS];  // grids with info about the map
+extern int** scentMap;
+extern cellDisplayBuffer displayBuffer[COLS][ROWS];
+extern int terrainRandomValues[DCOLS][DROWS][8];
+extern int** safetyMap;  // used to help monsters flee
+extern int** allySafetyMap;
+extern int** chokeMap;
+
+// extern const int nbDirs[8][2];
+extern const int cDirs[8][2];
+extern LevelData* levels;
+extern Creature player;
+extern PlayerCharacter rogue;
+extern Creature* monsters;
+extern Creature* dormantMonsters;
+extern Creature* graveyard;
+extern Creature* purgatory;
+extern Item* floorItems;
+extern Item* packItems;
+extern Item* monsterItemsHopper;
+extern int numberOfWaypoints;
 
 extern char displayedMessage[MESSAGE_LINES][COLS];
-extern boolean messageConfirmed[3];
+extern bool messageConfirmed[3];
 extern char combatText[COLS];
-short messageArchivePosition;
-char messageArchive[MESSAGE_ARCHIVE_LINES][COLS*2];
+int messageArchivePosition;
+char messageArchive[MESSAGE_ARCHIVE_LINES][COLS * 2];
 
 extern char currentFilePath[BROGUE_FILENAME_MAX];
 extern unsigned long randomNumbersGenerated;
@@ -56,148 +58,148 @@ extern unsigned long randomNumbersGenerated;
 extern char displayDetail[DCOLS][DROWS];
 
 #ifdef AUDIT_RNG
-extern FILE *RNGLogFile;
+extern FILE* RNGLogFile;
 #endif
 
 extern unsigned char inputRecordBuffer[INPUT_RECORD_BUFFER + 100];
-extern unsigned short locationInRecordingBuffer;
+extern unsigned int locationInRecordingBuffer;
 
 extern unsigned long positionInPlaybackFile;
 extern unsigned long lengthOfPlaybackFile;
 extern unsigned long recordingLocation;
 extern unsigned long maxLevelChanges;
-extern char annotationPathname[BROGUE_FILENAME_MAX];	// pathname of annotation file
+extern char annotationPathname[BROGUE_FILENAME_MAX];  // pathname of annotation file
 extern unsigned long previousGameSeed;
 
 // basic colors
-extern color white;
-extern color red;
-extern color blue;
-extern color darkRed;
-extern color gray;
-extern color darkGray;
-extern color veryDarkGray;
-extern color black;
-extern color yellow;
-extern color darkYellow;
-extern color teal;
-extern color purple;
-extern color darkPurple;
-extern color brown;
-extern color green;
-extern color darkGreen;
-extern color orange;
-extern color darkOrange;
-extern color darkBlue;
-extern color lightBlue;
-extern color pink;
-extern color tanColor;
-extern color sunlight;
-extern color rainbow;
+extern Color white;
+extern Color red;
+extern Color blue;
+extern Color darkRed;
+extern Color gray;
+extern Color darkGray;
+extern Color veryDarkGray;
+extern Color black;
+extern Color yellow;
+extern Color darkYellow;
+extern Color teal;
+extern Color purple;
+extern Color darkPurple;
+extern Color brown;
+extern Color green;
+extern Color darkGreen;
+extern Color orange;
+extern Color darkOrange;
+extern Color darkBlue;
+extern Color lightBlue;
+extern Color pink;
+extern Color tanColor;
+extern Color sunlight;
+extern Color rainbow;
 
 // tile colors
-extern color undiscoveredColor;
+extern Color undiscoveredColor;
 
-extern color wallForeColor;
-extern color wallBackColorStart;
-extern color wallBackColorEnd;
-extern color wallBackColor;
-extern color graniteBackColor;
-extern color floorForeColor;
-extern color floorBackColor;
-extern color doorForeColor;
-extern color doorBackColor;
+extern Color wallForeColor;
+extern Color wallBackColorStart;
+extern Color wallBackColorEnd;
+extern Color wallBackColor;
+extern Color graniteBackColor;
+extern Color floorForeColor;
+extern Color floorBackColor;
+extern Color doorForeColor;
+extern Color doorBackColor;
 
-extern color deepWaterForeColor;
-extern color deepWaterBackColor;
-extern color shallowWaterForeColor;
-extern color shallowWaterBackColor;
-extern color mudForeColor;
-extern color mudBackColor;
-extern color chasmForeColor;
-extern color chasmEdgeBackColor;
-extern color fireForeColor;
+extern Color deepWaterForeColor;
+extern Color deepWaterBackColor;
+extern Color shallowWaterForeColor;
+extern Color shallowWaterBackColor;
+extern Color mudForeColor;
+extern Color mudBackColor;
+extern Color chasmForeColor;
+extern Color chasmEdgeBackColor;
+extern Color fireForeColor;
 
 // light colors
-extern color minersLightColor;
-extern color minersLightStartColor;
-extern color minersLightEndColor;
-extern color torchLightColor;
-extern color deepWaterLightColor;
-extern color redFlashColor;
+extern Color minersLightColor;
+extern Color minersLightStartColor;
+extern Color minersLightEndColor;
+extern Color torchLightColor;
+extern Color deepWaterLightColor;
+extern Color redFlashColor;
 
-extern color discordColor;
-extern color memoryColor;
-extern color memoryOverlay;
-extern color magicMapColor;
-extern color clairvoyanceColor;
-extern color telepathyMultiplier;
-extern color omniscienceColor;
-extern color basicLightColor;
+extern Color discordColor;
+extern Color memoryColor;
+extern Color memoryOverlay;
+extern Color magicMapColor;
+extern Color clairvoyanceColor;
+extern Color telepathyMultiplier;
+extern Color omniscienceColor;
+extern Color basicLightColor;
 
-extern color colorDim25;
-extern color colorMultiplier100;
+extern Color colorDim25;
+extern Color colorMultiplier100;
 
-extern color magicMapFlashColor;
+extern Color magicMapFlashColor;
 
-extern color itemColor;
-extern color blueBar;
-extern color redBar;
-extern color hiliteColor;
-extern color interfaceBoxColor;
-extern color interfaceButtonColor;
+extern Color itemColor;
+extern Color blueBar;
+extern Color redBar;
+extern Color hiliteColor;
+extern Color interfaceBoxColor;
+extern Color interfaceButtonColor;
 
-extern color playerInvisibleColor;
-extern color playerInShadowColor;
-extern color playerInLightColor;
-extern color playerInDarknessColor;
+extern Color playerInvisibleColor;
+extern Color playerInShadowColor;
+extern Color playerInLightColor;
+extern Color playerInDarknessColor;
 
-extern const color inLightMultiplierColor;
-extern const color inDarknessMultiplierColor;
+extern const Color inLightMultiplierColor;
+extern const Color inDarknessMultiplierColor;
 
-extern const color buttonHoverColor;
-extern color titleButtonColor;
+extern const Color buttonHoverColor;
+extern Color titleButtonColor;
 
 // other colors
-extern color centipedeColor;
-extern color confusionGasColor;
-extern color lightningColor;
-extern color spectralImageColor;
+extern Color centipedeColor;
+extern Color confusionGasColor;
+extern Color lightningColor;
+extern Color spectralImageColor;
 
-extern color goodMessageColor;
-extern color badMessageColor;
-extern color advancementMessageColor;
-extern color itemMessageColor;
-extern color backgroundMessageColor;
+extern Color goodMessageColor;
+extern Color badMessageColor;
+extern Color advancementMessageColor;
+extern Color itemMessageColor;
+extern Color backgroundMessageColor;
 
-extern color flavorTextColor;
+extern Color flavorTextColor;
 
-extern const color flameSourceColor;
-extern const color flameSourceColorSecondary;
-extern const color flameTitleColor;
+extern const Color flameSourceColor;
+extern const Color flameSourceColorSecondary;
+extern const Color flameTitleColor;
 
-extern const color superVictoryColor;
+extern const Color superVictoryColor;
 
-extern color *dynamicColors[NUMBER_DYNAMIC_COLORS][3];
+extern Color* dynamicColors[NUMBER_DYNAMIC_COLORS][3];
 
-extern const autoGenerator autoGeneratorCatalog[NUMBER_AUTOGENERATORS];
+extern const AutoGenerator autoGeneratorCatalog[NUMBER_AUTOGENERATORS];
 
-extern floorTileType tileCatalog[NUMBER_TILETYPES];
+extern FloorTileType tileCatalog[NUMBER_TILETYPES];
 
-extern dungeonFeature dungeonFeatureCatalog[NUMBER_DUNGEON_FEATURES];
-extern dungeonProfile dungeonProfileCatalog[NUMBER_DUNGEON_PROFILES];
+extern DungeonFeature dungeonFeatureCatalog[NUMBER_DUNGEON_FEATURES];
+extern DungeonProfile dungeonProfileCatalog[NUMBER_DUNGEON_PROFILES];
 
-extern lightSource lightCatalog[NUMBER_LIGHT_KINDS];
+extern LightSource lightCatalog[NUMBER_LIGHT_KINDS];
 
 extern const blueprint blueprintCatalog[NUMBER_BLUEPRINTS];
 
-extern creatureType monsterCatalog[NUMBER_MONSTER_KINDS];
-extern monsterWords monsterText[NUMBER_MONSTER_KINDS];
-extern hordeType hordeCatalog[NUMBER_HORDES];
-extern const mutation mutationCatalog[NUMBER_MUTATORS];
-extern const monsterClass monsterClassCatalog[MONSTER_CLASS_COUNT];
+extern CreatureType monsterCatalog[NUMBER_MONSTER_KINDS];
+extern MonsterWords monsterText[NUMBER_MONSTER_KINDS];
+extern HordeType hordeCatalog[NUMBER_HORDES];
+extern const Mutation mutationCatalog[NUMBER_MUTATORS];
+extern const MonsterClass MonsterClassCatalog[MONSTER_CLASS_COUNT];
 
-extern const feat featTable[FEAT_COUNT];
+extern const Feature featTable[FEAT_COUNT];
 
 // ITEMS
 extern char itemTitles[NUMBER_SCROLL_KINDS][30];
@@ -212,18 +214,18 @@ extern char itemWoodsRef[NUMBER_ITEM_WOODS][30];
 extern char itemMetalsRef[NUMBER_ITEM_METALS][30];
 extern char itemGemsRef[NUMBER_ITEM_GEMS][30];
 
-extern itemTable keyTable[NUMBER_KEY_TYPES];
-extern itemTable foodTable[NUMBER_FOOD_KINDS];
-extern itemTable weaponTable[NUMBER_WEAPON_KINDS];
-extern itemTable armorTable[NUMBER_ARMOR_KINDS];
-extern itemTable scrollTable[NUMBER_SCROLL_KINDS];
-extern itemTable potionTable[NUMBER_POTION_KINDS];
-extern itemTable wandTable[NUMBER_WAND_KINDS];
-extern itemTable staffTable[NUMBER_STAFF_KINDS];
-extern itemTable ringTable[NUMBER_RING_KINDS];
-extern itemTable charmTable[NUMBER_CHARM_KINDS];
+extern ItemTable keyTable[NUMBER_KEY_TYPES];
+extern ItemTable foodTable[NUMBER_FOOD_KINDS];
+extern ItemTable weaponTable[NUMBER_WEAPON_KINDS];
+extern ItemTable armorTable[NUMBER_ARMOR_KINDS];
+extern ItemTable scrollTable[NUMBER_SCROLL_KINDS];
+extern ItemTable potionTable[NUMBER_POTION_KINDS];
+extern ItemTable wandTable[NUMBER_WAND_KINDS];
+extern ItemTable staffTable[NUMBER_STAFF_KINDS];
+extern ItemTable ringTable[NUMBER_RING_KINDS];
+extern ItemTable charmTable[NUMBER_CHARM_KINDS];
 
-extern const bolt boltCatalog[NUMBER_BOLT_KINDS];
+extern const Bolt boltCatalog[NUMBER_BOLT_KINDS];
 
 extern const char weaponRunicNames[NUMBER_WEAPON_RUNIC_KINDS][30];
 

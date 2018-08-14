@@ -26,9 +26,9 @@
 
 
 // mallocing two-dimensional arrays! dun dun DUN!
-short **allocGrid() {
-	short i;
-	short **array = malloc(DCOLS * sizeof(short *));
+int **allocGrid() {
+    int i;
+    int **array = malloc(DCOLS * sizeof(int *));
     
 	array[0] = malloc(DROWS * DCOLS * sizeof(short));
 	for(i = 1; i < DCOLS; i++) {
@@ -37,13 +37,13 @@ short **allocGrid() {
 	return array;
 }
 
-void freeGrid(short **array) {
+void freeGrid(int **array) {
 	free(array[0]);
 	free(array);
 }
 
-void copyGrid(short **to, short **from) {
-	short i, j;
+void copyGrid(int **to, int **from) {
+    int i, j;
 	
 	for(i = 0; i < DCOLS; i++) {
 		for(j = 0; j < DROWS; j++) {
@@ -52,8 +52,8 @@ void copyGrid(short **to, short **from) {
 	}
 }
 
-void fillGrid(short **grid, short fillValue) {
-	short i, j;
+void fillGrid(int **grid, int fillValue) {
+    int i, j;
 	
 	for(i = 0; i < DCOLS; i++) {
 		for(j = 0; j < DROWS; j++) {
@@ -63,9 +63,9 @@ void fillGrid(short **grid, short fillValue) {
 }
 
 // Highlight the portion indicated by hiliteCharGrid with the hiliteColor at the hiliteStrength -- both latter arguments are optional.
-void hiliteGrid(short **grid, color *hiliteColor, short hiliteStrength) {
-	short i, j, x, y;
-	color hCol;
+void hiliteGrid(int **grid, Color *hiliteColor, int hiliteStrength) {
+    int i, j, x, y;
+	Color hCol;
 	
 	assureCosmeticRNG;
 	
@@ -100,8 +100,8 @@ void hiliteGrid(short **grid, color *hiliteColor, short hiliteStrength) {
 	restoreRNG;
 }
 
-void findReplaceGrid(short **grid, short findValueMin, short findValueMax, short fillValue) {
-	short i, j;
+void findReplaceGrid(int **grid, int findValueMin, int findValueMax, int fillValue) {
+    int i, j;
 	
 	for(i = 0; i < DCOLS; i++) {
 		for(j = 0; j < DROWS; j++) {
@@ -114,9 +114,9 @@ void findReplaceGrid(short **grid, short findValueMin, short findValueMax, short
 
 // Flood-fills the grid from (x, y) along cells that are within the eligible range.
 // Returns the total count of filled cells.
-short floodFillGrid(short **grid, short x, short y, short eligibleValueMin, short eligibleValueMax, short fillValue) {
-    enum directions dir;
-	short newX, newY, fillCount = 1;
+int floodFillGrid(int **grid, int x, int y, int eligibleValueMin, int eligibleValueMax, int fillValue) {
+    enum Directions dir;
+    int newX, newY, fillCount = 1;
     
     brogueAssert(fillValue < eligibleValueMin || fillValue > eligibleValueMax);
     
@@ -133,8 +133,8 @@ short floodFillGrid(short **grid, short x, short y, short eligibleValueMin, shor
     return fillCount;
 }
 
-void drawRectangleOnGrid(short **grid, short x, short y, short width, short height, short value) {
-    short i, j;
+void drawRectangleOnGrid(int **grid, int x, int y, int width, int height, int value) {
+    int i, j;
     
     for (i=x; i < x+width; i++) {
         for (j=y; j<y+height; j++) {
@@ -143,8 +143,8 @@ void drawRectangleOnGrid(short **grid, short x, short y, short width, short heig
     }
 }
 
-void drawCircleOnGrid(short **grid, short x, short y, short radius, short value) {
-    short i, j;
+void drawCircleOnGrid(int **grid, int x, int y, int radius, int value) {
+    int i, j;
     
     for (i=max(0, x - radius - 1); i < max(DCOLS, x + radius); i++) {
         for (j=max(0, y - radius - 1); j < max(DROWS, y + radius); j++) {
@@ -155,8 +155,8 @@ void drawCircleOnGrid(short **grid, short x, short y, short radius, short value)
     }
 }
 
-void intersectGrids(short **onto, short **from) {
-    short i, j;
+void intersectGrids(int **onto, int **from) {
+    int i, j;
 	for(i = 0; i < DCOLS; i++) {
 		for(j = 0; j < DROWS; j++) {
             if (onto[i][j] && from[i][j]) {
@@ -168,8 +168,8 @@ void intersectGrids(short **onto, short **from) {
     }
 }
 
-void uniteGrids(short **onto, short **from) {
-    short i, j;
+void uniteGrids(int **onto, int **from) {
+    int i, j;
 	for(i = 0; i < DCOLS; i++) {
 		for(j = 0; j < DROWS; j++) {
             if (!onto[i][j] && from[i][j]) {
@@ -179,8 +179,8 @@ void uniteGrids(short **onto, short **from) {
     }
 }
 
-void invertGrid(short **grid) {
-    short i, j;
+void invertGrid(int **grid) {
+    int i, j;
 	for(i = 0; i < DCOLS; i++) {
 		for(j = 0; j < DROWS; j++) {
             grid[i][j] = !grid[i][j];
@@ -190,8 +190,8 @@ void invertGrid(short **grid) {
 
 // Fills grid locations with the given value if they match any terrain flags or map flags.
 // Otherwise does not change the grid location.
-void getTerrainGrid(short **grid, short value, unsigned long terrainFlags, unsigned long mapFlags) {
-    short i, j;
+void getTerrainGrid(int **grid, int value, unsigned long terrainFlags, unsigned long mapFlags) {
+    int i, j;
 	for(i = 0; i < DCOLS; i++) {
 		for(j = 0; j < DROWS; j++) {
             if (grid[i][j] != value && cellHasTerrainFlag(i, j, terrainFlags) || (pmap[i][j].flags & mapFlags)) {
@@ -201,8 +201,8 @@ void getTerrainGrid(short **grid, short value, unsigned long terrainFlags, unsig
     }
 }
 
-void getTMGrid(short **grid, short value, unsigned long TMflags) {
-    short i, j;
+void getTMGrid(int **grid, int value, unsigned long TMflags) {
+    int i, j;
 	for(i = 0; i < DCOLS; i++) {
 		for(j = 0; j < DROWS; j++) {
             if (grid[i][j] != value && cellHasTMFlag(i, j, TMflags)) {
@@ -212,8 +212,8 @@ void getTMGrid(short **grid, short value, unsigned long TMflags) {
     }
 }
 
-void getPassableArcGrid(short **grid, short minPassableArc, short maxPassableArc, short value) {
-    short i, j, count;
+void getPassableArcGrid(int **grid, int minPassableArc, int maxPassableArc, int value) {
+    int i, j, count;
 	for(i = 0; i < DCOLS; i++) {
 		for(j = 0; j < DROWS; j++) {
             if (grid[i][j] != value) {
@@ -226,8 +226,8 @@ void getPassableArcGrid(short **grid, short minPassableArc, short maxPassableArc
     }
 }
 
-short validLocationCount(short **grid, short validValue) {
-    short i, j, count;
+int validLocationCount(int **grid, int validValue) {
+    int i, j, count;
     count = 0;
 	for(i = 0; i < DCOLS; i++) {
 		for(j = 0; j < DROWS; j++) {
@@ -239,8 +239,8 @@ short validLocationCount(short **grid, short validValue) {
     return count;
 }
 
-short leastPositiveValueInGrid(short **grid) {
-    short i, j, leastPositiveValue = 0;
+int leastPositiveValueInGrid(int **grid) {
+    int i, j, leastPositiveValue = 0;
 	for(i = 0; i < DCOLS; i++) {
 		for(j = 0; j < DROWS; j++) {
             if (grid[i][j] > 0 && (leastPositiveValue == 0 || grid[i][j] < leastPositiveValue)) {
@@ -253,15 +253,15 @@ short leastPositiveValueInGrid(short **grid) {
 
 // Takes a grid as a mask of valid locations, chooses one randomly and returns it as (x, y).
 // If there are no valid locations, returns (-1, -1).
-void randomLocationInGrid(short **grid, short *x, short *y, short validValue) {
-    const short locationCount = validLocationCount(grid, validValue);
-    short i, j;
+void randomLocationInGrid(int **grid, int *x, int *y, int validValue) {
+    const int locationCount = validLocationCount(grid, validValue);
+    int i, j;
     
     if (locationCount <= 0) {
         *x = *y = -1;
         return;
     }
-    short index = rand_range(0, locationCount - 1);
+    int index = rand_range(0, locationCount - 1);
 	for(i = 0; i < DCOLS && index >= 0; i++) {
 		for(j = 0; j < DROWS && index >= 0; j++) {
             if (grid[i][j] == validValue) {
@@ -278,10 +278,10 @@ void randomLocationInGrid(short **grid, short *x, short *y, short validValue) {
 
 // Finds the lowest positive number in a grid, chooses one location with that number randomly and returns it as (x, y).
 // If there are no valid locations, returns (-1, -1).
-void randomLeastPositiveLocationInGrid(short **grid, short *x, short *y, boolean deterministic) {
-    const short targetValue = leastPositiveValueInGrid(grid);
-    short locationCount;
-    short i, j, index;
+void randomLeastPositiveLocationInGrid(int **grid, int *x, int *y, bool deterministic) {
+    const int targetValue = leastPositiveValueInGrid(grid);
+    int locationCount;
+    int i, j, index;
     
     if (targetValue == 0) {
         *x = *y = -1;
@@ -317,16 +317,16 @@ void randomLeastPositiveLocationInGrid(short **grid, short *x, short *y, boolean
     return;
 }
 
-boolean getQualifyingPathLocNear(short *retValX, short *retValY,
-                                 short x, short y,
-                                 boolean hallwaysAllowed,
+bool getQualifyingPathLocNear(int *retValX, int *retValY,
+                                 int x, int y,
+                                 bool hallwaysAllowed,
                                  unsigned long blockingTerrainFlags,
                                  unsigned long blockingMapFlags,
                                  unsigned long forbiddenTerrainFlags,
                                  unsigned long forbiddenMapFlags,
-                                 boolean deterministic) {
-    short **grid, **costMap;
-    short loc[2];
+                                 bool deterministic) {
+    int **grid, **costMap;
+    int loc[2];
     
     // First check the given location to see if it works, as an optimization.
     if (!cellHasTerrainFlag(x, y, blockingTerrainFlags | forbiddenTerrainFlags)
@@ -379,7 +379,7 @@ boolean getQualifyingPathLocNear(short *retValX, short *retValY,
     
     // Fall back to a pathing-agnostic alternative if there are no solutions.
     if (*retValX == -1 && *retValY == -1) {
-        if (getQualifyingLocNear(loc, x, y, hallwaysAllowed, NULL,
+        if (getQualifyingLocNear(loc, x, y, hallwaysAllowed, nullptr,
                                  (blockingTerrainFlags | forbiddenTerrainFlags),
                                  (blockingMapFlags | forbiddenMapFlags),
                                  false, deterministic)) {
@@ -394,10 +394,10 @@ boolean getQualifyingPathLocNear(short *retValX, short *retValY,
     }
 }
 
-void cellularAutomataRound(short **grid, char birthParameters[9], char survivalParameters[9]) {
-    short i, j, nbCount, newX, newY;
-    enum directions dir;
-    short **buffer2;
+void cellularAutomataRound(int **grid, char birthParameters[9], char survivalParameters[9]) {
+    int i, j, nbCount, newX, newY;
+    enum Directions dir;
+    int **buffer2;
     
     buffer2 = allocGrid();
     copyGrid(buffer2, grid); // Make a backup of grid in buffer2, so that each generation is isolated.
@@ -428,9 +428,9 @@ void cellularAutomataRound(short **grid, char birthParameters[9], char survivalP
 }
 
 // Marks a cell as being a member of blobNumber, then recursively iterates through the rest of the blob
-short fillContiguousRegion(short **grid, short x, short y, short fillValue) {
-    enum directions dir;
-	short newX, newY, numberOfCells = 1;
+int fillContiguousRegion(int **grid, int x, int y, int fillValue) {
+    enum Directions dir;
+    int newX, newY, numberOfCells = 1;
 	
 	grid[x][y] = fillValue;
 	
@@ -449,19 +449,19 @@ short fillContiguousRegion(short **grid, short x, short y, short fillValue) {
 }
 
 // Loads up **grid with the results of a cellular automata simulation.
-void createBlobOnGrid(short **grid,
-                      short *retMinX, short *retMinY, short *retWidth, short *retHeight,
-                      short roundCount,
-                      short minBlobWidth, short minBlobHeight,
-					  short maxBlobWidth, short maxBlobHeight, short percentSeeded,
+void createBlobOnGrid(int **grid,
+                      int *retMinX, int *retMinY, int *retWidth, int *retHeight,
+                      int roundCount,
+                      int minBlobWidth, int minBlobHeight,
+                      int maxBlobWidth, int maxBlobHeight, int percentSeeded,
 					  char birthParameters[9], char survivalParameters[9]) {
     
-	short i, j, k;
-	short blobNumber, blobSize, topBlobNumber, topBlobSize;
+    int i, j, k;
+    int blobNumber, blobSize, topBlobNumber, topBlobSize;
     
-    short topBlobMinX, topBlobMinY, topBlobMaxX, topBlobMaxY, blobWidth, blobHeight;
-	//short buffer2[maxBlobWidth][maxBlobHeight]; // buffer[][] is already a global short array
-	boolean foundACellThisLine;
+    int topBlobMinX, topBlobMinY, topBlobMaxX, topBlobMaxY, blobWidth, blobHeight;
+    //int buffer2[maxBlobWidth][maxBlobHeight]; // buffer[][] is already a global int array
+	bool foundACellThisLine;
 	
 	// Generate blobs until they satisfy the minBlobWidth and minBlobHeight restraints
 	do {
